@@ -11,6 +11,18 @@ public final class Entity {
         this.isRed = isRed;
     }
 
+    public int x() {
+        return x;
+    }
+
+    public int y() {
+        return y;
+    }
+
+    public boolean isRed() {
+        return isRed;
+    }
+
     @Override
     public int hashCode() {
         int result = 1;
