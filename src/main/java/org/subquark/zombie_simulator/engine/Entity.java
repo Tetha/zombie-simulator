@@ -1,14 +1,14 @@
 package org.subquark.zombie_simulator.engine;
 
 public final class Entity {
-    private final boolean isRed;
+    private final boolean isZombie;
     private final int x;
     private final int y;
 
-    public Entity( int x, int y, boolean isRed ) {
+    public Entity( int x, int y, boolean isZombie ) {
         this.x = x;
         this.y = y;
-        this.isRed = isRed;
+        this.isZombie = isZombie;
     }
 
     public int x() {
@@ -19,8 +19,8 @@ public final class Entity {
         return y;
     }
 
-    public boolean isRed() {
-        return isRed;
+    public boolean isZombie() {
+        return isZombie;
     }
 
     @Override
@@ -28,7 +28,7 @@ public final class Entity {
         int result = 1;
         result = ( result << 31 ) + x;
         result = ( result << 31 ) + y;
-        if ( isRed ) result = result * 2;
+        if ( isZombie ) result = result * 2;
         return result;
     }
 
@@ -39,11 +39,11 @@ public final class Entity {
         if ( o.getClass() != Entity.class ) return false;
 
         Entity co = ( Entity ) o;
-        return co.x == x && co.y == y && co.isRed == isRed;
+        return co.x == x && co.y == y && co.isZombie == isZombie;
     }
 
     @Override
     public String toString() {
-        return String.format("Entity[x=%d,y=%d,isRed=%b]", x, y, isRed );
+        return String.format("Entity[x=%d,y=%d,isZombie=%b]", x, y, isZombie );
     }
 }

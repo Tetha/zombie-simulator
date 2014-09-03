@@ -48,8 +48,8 @@ public final class Main {
     }
 
     private static void drawEntity( Entity e ) {
-        if ( e.isRed() ) {
-            GL11.glColor3f( 1.0f, 0.0f, 0.0f );
+        if ( e.isZombie() ) {
+            GL11.glColor3f( 0.0f, 1.0f, 0.0f );
         } else {
             GL11.glColor3f( 0.0f, 0.0f, 1.0f );
         }
