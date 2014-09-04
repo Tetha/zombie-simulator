@@ -1,33 +1,45 @@
 package org.subquark.zombie_simulator.engine;
 
 public final class Entity {
-    private final boolean isZombie;
-    private final int x;
-    private final int y;
+    private boolean isZombie;
+    private double x;
+    private double y;
 
-    public Entity( int x, int y, boolean isZombie ) {
+    public Entity( double x, double y, boolean isZombie ) {
         this.x = x;
         this.y = y;
         this.isZombie = isZombie;
     }
 
-    public int x() {
+    public double x() {
         return x;
     }
 
-    public int y() {
+    public void x( double newX ) {
+        this.x = newX;
+    }
+
+    public double y() {
         return y;
+    }
+
+    public void y( double newY ) {
+        this.y = newY;
     }
 
     public boolean isZombie() {
         return isZombie;
     }
 
+    public void isZombie( boolean zombie ) {
+        this.isZombie = zombie;
+    }
+
     @Override
     public int hashCode() {
         int result = 1;
-        result = ( result << 31 ) + x;
-        result = ( result << 31 ) + y;
+        result = ( result << 31 ) + (int) x;
+        result = ( result << 31 ) + (int) y;
         if ( isZombie ) result = result * 2;
         return result;
     }

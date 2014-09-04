@@ -13,6 +13,7 @@ import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
 import org.subquark.zombie_simulator.engine.Entity;
+import org.subquark.zombie_simulator.engine.Level;
 
 public final class Main {
     private static final Logger log = LogManager.getLogger();
@@ -34,14 +35,26 @@ public final class Main {
         GL11.glMatrixMode( GL11.GL_MODELVIEW );
 
         Random r = new Random();
-        List<Entity> entities = new ArrayList<Entity>(100);
-        while ( entities.size() < 100 ) {
-            entities.add( new Entity( r.nextInt( 500 ), r.nextInt( 500 ), r.nextBoolean() ) );
+        Level l = new Level();
+        for ( int i = 0; i < 100; i++ ) {
+            l.addEntity( new Entity( r.nextDouble() * 500, r.nextDouble() * 500, r.nextBoolean() ) );
         }
+        long time = System.nanoTime();
+        final int velocityPerSecond = 500;
         while ( !Display.isCloseRequested() ) {
+            long lastTime = time;
+            time = System.nanoTime();
+            long timeDeltaNano = time - lastTime;
+            double timeDeltaSeconds = timeDeltaNano / 1_000_000_000d;
+
             GL11.glClear( GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT );
-            entities.forEach( e -> drawEntity( e ) );
+            l.forEachEntity( e -> drawEntity( e ) );
             Display.update();
+
+            l.forEachEntity( e -> {
+                e.x( e.x() + ( r.nextInt( velocityPerSecond ) - velocityPerSecond/2 ) * timeDeltaSeconds );
+                e.y( e.y() + ( r.nextInt( velocityPerSecond ) - velocityPerSecond/2 ) * timeDeltaSeconds );
+            });
         }
 
         return 0;
@@ -55,10 +68,10 @@ public final class Main {
         }
 
         GL11.glBegin( GL11.GL_QUADS );
-        GL11.glVertex2f( e.x() - 2, e.y() - 2 );
-        GL11.glVertex2f( e.x() + 2, e.y() - 2 );
-        GL11.glVertex2f( e.x() + 2, e.y() + 2 );
-        GL11.glVertex2f( e.x() - 2, e.y() + 2 );
+        GL11.glVertex2d( e.x() - 2, e.y() - 2 );
+        GL11.glVertex2d( e.x() + 2, e.y() - 2 );
+        GL11.glVertex2d( e.x() + 2, e.y() + 2 );
+        GL11.glVertex2d( e.x() - 2, e.y() + 2 );
         GL11.glEnd();
     }
 }
