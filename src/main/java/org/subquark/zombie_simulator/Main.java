@@ -2,6 +2,9 @@ package org.subquark.zombie_simulator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
@@ -40,7 +43,7 @@ public final class Main {
             l.addEntity( new Entity( r.nextDouble() * 500, r.nextDouble() * 500, r.nextBoolean() ) );
         }
         long time = System.nanoTime();
-        final int velocityPerSecond = 500;
+        final int velocityPerSecond = 50;
         while ( !Display.isCloseRequested() ) {
             long lastTime = time;
             time = System.nanoTime();
@@ -51,9 +54,53 @@ public final class Main {
             l.forEachEntity( e -> drawEntity( e ) );
             Display.update();
 
+            log.trace( l.entityCount() );
+            Map<Entity, Entity> closestEntity = new HashMap<Entity, Entity>();
             l.forEachEntity( e -> {
-                e.x( e.x() + ( r.nextInt( velocityPerSecond ) - velocityPerSecond/2 ) * timeDeltaSeconds );
-                e.y( e.y() + ( r.nextInt( velocityPerSecond ) - velocityPerSecond/2 ) * timeDeltaSeconds );
+                l.entitiesAround( e.x(), e.y(), 50, (e2, d) -> {
+                    if ( e == e2 ) return;
+                    if ( closestEntity.containsKey( e ) ) {
+                        Entity closest = closestEntity.get( e );
+                        double dx = e.x() - closest.x();
+                        double dy = e.y() - closest.y();
+
+                        double minDSquared = dx * dx + dy * dy;
+                        if ( d < minDSquared ) {
+                            closestEntity.put( e, e2 );
+                        }
+                    } else {
+                        closestEntity.put( e, e2 );
+                    }
+                });
+            });
+
+            closestEntity.forEach( (e, e2) -> {
+                double coeff = 0;
+                if ( e.isZombie() != e2.isZombie() ) {
+                    if ( e.isZombie() ) {
+                        coeff = 1;
+                    } else {
+                        coeff = -1;
+                    }
+                }
+
+                double xJitter = (r.nextInt( 10 ) - 5) * timeDeltaSeconds;
+                double yJitter = (r.nextInt( 10 ) - 5) * timeDeltaSeconds;
+
+                double dx = e2.x() - e.x();
+                double dy = e2.y() - e.y();
+                double distance = Math.sqrt( dx*dx + dy*dy );
+                if ( distance < 1 ) {
+                    e.isZombie( true );
+                    e2.isZombie( true );
+                }
+                e.x( e.x() + dx/distance * velocityPerSecond * coeff * timeDeltaSeconds + xJitter );
+                e.y( e.y() + dy/distance * velocityPerSecond * coeff * timeDeltaSeconds + yJitter );
+
+                if ( e.x() < 0 ) e.x( 0 );
+                if ( 500 < e.x() ) e.x( 500 );
+                if ( e.y() < 0 ) e.y( 0 );
+                if ( 500 < e.y() ) e.y( 500 );
             });
         }
 
