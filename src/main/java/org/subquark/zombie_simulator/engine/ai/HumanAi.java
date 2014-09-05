@@ -2,11 +2,14 @@ package org.subquark.zombie_simulator.ai;
 
 import org.subquark.zombie_simulator.engine.Level;
 import org.subquark.zombie_simulator.engine.Entity;
+
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 public class HumanAi implements Ai {
     private Entity controlled;
-    private Entity closest;
+    private List<Entity> nearbyZombies = new ArrayList<Entity>();
     private final int velocityPerSecond = 50;
     private static final Random r = new Random();
 
@@ -16,45 +19,26 @@ public class HumanAi implements Ai {
 
     @Override
     public void think( Level l, double timeDeltaSeconds ) {
-        closest = null;
+        nearbyZombies.clear();
         l.entitiesAround( controlled.x(), controlled.y(), 50, (e2, d) -> {
-            if ( controlled == e2 ) return;
-            if ( closest != null ) {
-                double dx = controlled.x() - closest.x();
-                double dy = controlled.y() - closest.y();
-
-                double minDSquared = dx * dx + dy * dy;
-                if ( d < minDSquared ) {
-                    closest = e2;
-                }
-            } else {
-                closest = e2;
+            if ( e2.isZombie() ) {
+                nearbyZombies.add( e2 );
             }
         });
     }
 
     @Override
     public void act( double timeDeltaSeconds ) {
-        if ( closest == null ) return;
+        double dx = nearbyZombies.stream().mapToDouble( e -> e.x() - controlled.x() ).sum();
+        double dy = nearbyZombies.stream().mapToDouble( e -> e.y() - controlled.y() ).sum();
 
-        double coeff = 0;
-        if ( controlled.isZombie() != closest.isZombie() ) {
-            coeff = -1;
+        if ( dx > 0 || dy > 0 ) {
+            double distance = Math.sqrt( dx*dx + dy*dy );
+            controlled.x( controlled.x() 
+                            - dx/distance * velocityPerSecond * timeDeltaSeconds );
+            controlled.y( controlled.y() 
+                          - dy/distance * velocityPerSecond * timeDeltaSeconds );
         }
-
-        double xJitter = (r.nextInt( 10 ) - 5) * timeDeltaSeconds;
-        double yJitter = (r.nextInt( 10 ) - 5) * timeDeltaSeconds;
-
-        double dx = closest.x() - controlled.x();
-        double dy = closest.y() - controlled.y();
-        double distance = Math.sqrt( dx*dx + dy*dy );
-        controlled.x( controlled.x() 
-                        + dx/distance * velocityPerSecond * coeff * timeDeltaSeconds 
-                        + xJitter );
-        controlled.y( controlled.y() 
-                      + dy/distance * velocityPerSecond * coeff * timeDeltaSeconds
-                      + yJitter );
-
         if ( controlled.x() < 0 ) controlled.x( 0 );
         if ( 500 < controlled.x() ) controlled.x( 500 );
         if ( controlled.y() < 0 ) controlled.y( 0 );

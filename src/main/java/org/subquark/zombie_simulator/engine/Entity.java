@@ -45,6 +45,10 @@ public final class Entity {
         this.y = newY;
     }
 
+    public boolean isHuman() {
+        return !isZombie;
+    }
+
     public boolean isZombie() {
         return isZombie;
     }

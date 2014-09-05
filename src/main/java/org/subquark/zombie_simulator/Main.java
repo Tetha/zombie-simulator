@@ -40,7 +40,10 @@ public final class Main {
         Random r = new Random();
         Level l = new Level();
         for ( int i = 0; i < 500; i++ ) {
-            l.addEntity( new Entity( r.nextDouble() * 500, r.nextDouble() * 500, r.nextBoolean() ) );
+            l.addEntity( new Entity( r.nextDouble() * 500, r.nextDouble() * 500, false ) );
+        }
+        for ( int i = 0; i < 5; i++ ) {
+            l.addEntity( new Entity( r.nextDouble() * 500, r.nextDouble() * 500, true ) );
         }
         long time = System.nanoTime();
         while ( !Display.isCloseRequested() ) {
