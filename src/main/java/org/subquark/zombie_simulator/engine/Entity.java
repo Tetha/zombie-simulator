@@ -1,14 +1,32 @@
 package org.subquark.zombie_simulator.engine;
 
+import org.subquark.zombie_simulator.ai.Ai;
+import org.subquark.zombie_simulator.ai.ZombieAi;
+import org.subquark.zombie_simulator.ai.HumanAi;
+
 public final class Entity {
     private boolean isZombie;
     private double x;
     private double y;
+    private Ai ai;
 
     public Entity( double x, double y, boolean isZombie ) {
         this.x = x;
         this.y = y;
         this.isZombie = isZombie;
+        if ( isZombie ) {
+            this.ai = new ZombieAi( this );
+        } else {
+            this.ai = new HumanAi( this );
+        }
+    }
+
+    public void think( Level l, double timeDeltaSeconds ) {
+        this.ai.think( l, timeDeltaSeconds );
+    }
+
+    public void act( double timeDeltaSeconds ) {
+        this.ai.act( timeDeltaSeconds );
     }
 
     public double x() {
